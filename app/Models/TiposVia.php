@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class TiposVia extends Model
 {
     use HasFactory;
+    protected $fillable=['tipo_via'];
 }

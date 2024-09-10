@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class CategoriasCriterio extends Model
 {
     use HasFactory;
+    protected $fillable=['categoria_criterios','descripcion'];
 }

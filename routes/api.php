@@ -11,6 +11,7 @@ use App\Http\Controllers\DepartamentoController;
 use App\Http\Controllers\DetalleEvaluacionController;
 use App\Http\Controllers\DirectionController;
 use App\Http\Controllers\EvaluacionController;
+use App\Http\Controllers\EvaluacionTipoController;
 use App\Http\Controllers\IdentificacionController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MunicipioController;
@@ -99,6 +100,13 @@ Route::controller(EvaluacionController::class)->group(function(){
     Route::post('evaluacion/guardar', 'save');
     Route::put('evaluacion/actualizar', 'update');
     Route::delete('evaluacion/borrar', 'delete');
+});
+
+Route::controller(EvaluacionTipoController::class)->group(function(){
+    Route::post('tipoev/guardar', 'save');
+    Route::put('tipoev/actualizar', 'update');
+    Route::delete('tipoev/borrar', 'delete');
+    Route::get('tipoev/datos', 'getData');
 });
 
 Route::controller(IdentificacionController::class)->group(function(){

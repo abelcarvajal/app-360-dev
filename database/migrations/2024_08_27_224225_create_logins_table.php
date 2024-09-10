@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_roles');
             $table->foreign('id_roles')->references('id')->on('roles');
             $table->unsignedBigInteger('id_colaboradores');
-            $table->foreign('id_colaboradores')->references('id')->on('colaboradores');
+            $table->foreign('id_colaboradores')->references('id')->on('colaboradors');
             $table->timestamps();
         });
     }
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('logins');
+        Schema::dropIfExists('login');
     }
 };

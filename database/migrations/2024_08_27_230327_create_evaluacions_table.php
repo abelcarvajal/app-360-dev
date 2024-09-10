@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->date('fecha');
             $table->unsignedBigInteger('id_colaboradores');
-            $table->foreign('id_colaboradores')->references('id')->on('colaboradores');
+            $table->foreign('id_colaboradores')->references('id')->on('colaboradors');
             $table->unsignedBigInteger('id_login');
             $table->foreign('id_login')->references('id')->on('login');
             $table->unsignedBigInteger('id_detalle_evaluacion');
