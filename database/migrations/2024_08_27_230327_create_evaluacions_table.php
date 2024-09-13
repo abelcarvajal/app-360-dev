@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_login');
             $table->foreign('id_login')->references('id')->on('login');
             $table->unsignedBigInteger('id_detalle_evaluacion');
-            $table->foreign('id_detalle_evaluacion')->references('id')->on('detalle_evaluacion');
+            $table->foreign('id_detalle_evaluacion')->references('id')->on('detalle_evaluacions');
             $table->timestamps();
         });
     }
