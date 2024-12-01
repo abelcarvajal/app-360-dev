@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('barrios', function (Blueprint $table) {
+        Schema::create('lugar_nacimiento', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre_barrio');
             $table->unsignedBigInteger('id_municipios');
             $table->foreign('id_municipios')->references('id')->on('municipios');
             $table->timestamps();
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('barrios');
+        Schema::dropIfExists('lugar_nacimiento');
     }
 };

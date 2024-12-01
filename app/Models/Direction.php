@@ -8,5 +8,19 @@ use Illuminate\Database\Eloquent\Model;
 class Direction extends Model
 {
     use HasFactory;
-    protected $fillable=['id_tipos_via','numero_via','numero','id_barrios','id_posiciones_cardinales'];
+    protected $fillable = [
+        'colaborador_id',
+        'municipio_id',
+        'direccion_residencia'
+    ];
+
+    public function colaborador()
+    {
+        return $this->belongsTo(Colaborador::class);
+    }
+
+    public function municipio()
+    {
+        return $this->belongsTo(Municipio::class);
+    }
 }

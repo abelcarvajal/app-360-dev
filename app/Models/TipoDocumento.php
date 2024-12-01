@@ -8,5 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class TipoDocumento extends Model
 {
     use HasFactory;
-    protected $fillable=['tipo_documento'];
+    protected $fillable=[
+        'abreviatura',
+        'tipo_documento'
+    ];
+
+    public function identificacions()
+    {
+        return $this->hasMany(Identificacion::class);
+    }
 }

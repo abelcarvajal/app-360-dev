@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('tipo_documentos', function (Blueprint $table) {
             $table->id();
+            $table->string('abreviatura');
             $table->string('tipo_documento');
             $table->timestamps();
         });

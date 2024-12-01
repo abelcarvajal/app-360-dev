@@ -18,6 +18,12 @@ class DepartamentoController extends Controller
             'result' => $departamento
         ]);
     }
+    //Método para obtener los departamentos por país
+    public function getDataByPais($id_pais){
+        $departamento=Departamento::where('id_pais', $id_pais)->get();
+        return response()->json($departamento);
+    }
+
     public function save(Request $request){
         
         $departamento=Departamento::create([

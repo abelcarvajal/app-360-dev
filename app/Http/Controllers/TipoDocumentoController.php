@@ -21,6 +21,7 @@ class TipoDocumentoController extends Controller
     public function save(Request $request){
         
         $documento=TipoDocumento::create([
+            'abreviatura'=>$request->abreviatura,
             'tipo_documento'=>$request->tipo    
         ]);
 
@@ -34,6 +35,7 @@ class TipoDocumentoController extends Controller
         
         $documento=TipoDocumento::findOrFail($request->id);
         $documento->update([
+            'abreviatura'=>$request->abreviatura,
             'tipo_documento'=>$request->tipo
         ]);
         return response()->json([

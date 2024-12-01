@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('programas', function (Blueprint $table) {
-            $table->id();
-            $table->string('nombre_programa');
-            $table->timestamps();
+        Schema::table('tipo_documentos', function (Blueprint $table) {
+            $table->string('abreviatura')->nullable()->after('tipo_documento');
         });
     }
 
@@ -23,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('programas');
+        Schema::table('tipo_documentos', function (Blueprint $table) {
+            $table->dropColumn('abreviatura');
+        });
     }
 };

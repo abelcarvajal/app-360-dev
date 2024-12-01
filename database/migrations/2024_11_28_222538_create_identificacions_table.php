@@ -6,23 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('posiciones_cardinales', function (Blueprint $table) {
+        Schema::create('identificacions', function (Blueprint $table) {
             $table->id();
-            $table->string('posicion_cardinal');
+            $table->string('numero_documento')->unique();
+            $table->foreignId('tipo_documento_id')->constrained('tipo_documentos');
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('posiciones_cardinales');
+        Schema::dropIfExists('identificacions');
     }
 };

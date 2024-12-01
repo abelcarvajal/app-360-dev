@@ -18,6 +18,12 @@ class MunicipioController extends Controller
             'result' => $mun
         ]);
     }
+    //Método para obtener los municipios por departamento
+    public function getDataByDepartamento($id_departamento){
+        $municipio=Municipio::where('id_departamentos', $id_departamento)->get();
+        return response()->json($municipio);
+    }
+    
     public function save(Request $request){
         
         $mun=Municipio::create([
