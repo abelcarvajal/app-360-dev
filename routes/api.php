@@ -11,6 +11,7 @@ use App\Http\Controllers\DepartamentoController;
 use App\Http\Controllers\DetalleEvaluacionController;
 use App\Http\Controllers\DirectionController;
 use App\Http\Controllers\EvaluacionController;
+use App\Http\Controllers\EvaluacionTipoController;
 use App\Http\Controllers\IdentificacionController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MunicipioController;
@@ -53,17 +54,17 @@ Route::controller(CargoController::class)->group(function(){
 });
 
 Route::controller(CategoriasCriterioController::class)->group(function(){
-    Route::get('categorias/datos', 'getData');
-    Route::post('categorias/guardar', 'save');
+    Route::get('categorias/datos', 'index');
+    Route::post('categorias/guardar', 'store');
     Route::put('categorias/actualizar', 'update');
-    Route::delete('categorias/borrar', 'delete');
+    Route::delete('categorias/borrar', 'destroy');
 });
 
 Route::controller(ColaboradorController::class)->group(function(){
-    Route::get('colaborador/datos', 'getData');
-    Route::post('colaborador/guardar', 'save');
+    Route::get('colaborador/datos', 'index');
+    Route::post('colaborador/guardar', 'store');
     Route::put('colaborador/actualizar', 'update');
-    Route::delete('colaborador/borrar', 'delete');
+    Route::delete('colaborador/borrar', 'destroy');
 });
 
 Route::controller(CriterioController::class)->group(function(){
@@ -74,6 +75,7 @@ Route::controller(CriterioController::class)->group(function(){
 });
 
 Route::controller(DepartamentoController::class)->group(function(){
+    Route::get('departamento/datos/{id_pais}', 'getDataByPais'); //Ruta agregada para obtener los departamentos por país
     Route::get('departamento/datos', 'getData');
     Route::post('departamento/guardar', 'save');
     Route::put('departamento/actualizar', 'update');
@@ -101,6 +103,13 @@ Route::controller(EvaluacionController::class)->group(function(){
     Route::delete('evaluacion/borrar', 'delete');
 });
 
+Route::controller(EvaluacionTipoController::class)->group(function(){
+    Route::post('tipoev/guardar', 'save');
+    Route::put('tipoev/actualizar', 'update');
+    Route::delete('tipoev/borrar', 'delete');
+    Route::get('tipoev/datos', 'getData');
+});
+
 Route::controller(IdentificacionController::class)->group(function(){
     Route::get('identificacion/datos', 'getData');
     Route::post('identificacion/guardar', 'save');
@@ -116,6 +125,7 @@ Route::controller(LoginController::class)->group(function(){
 });
 
 Route::controller(MunicipioController::class)->group(function(){
+    Route::get('municipio/datos/{id_departamento}', 'getDataByDepartamento'); //Ruta agregada para obtener los municipios por departamento
     Route::get('municipio/datos', 'getData');
     Route::post('municipio/guardar', 'save');
     Route::put('municipio/actualizar', 'update');

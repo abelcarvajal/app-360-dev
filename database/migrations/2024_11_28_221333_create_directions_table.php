@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('criterios', function (Blueprint $table) {
-            $table->id();
-            $table->text('criterio');
-            $table->unsignedBigInteger('id_categorias_criterios');
-            $table->foreign('id_categorias_criterios')->references('id')->on('categorias_criterios');
+        Schema::create('directions', function (Blueprint $table) {
+            $table->id(); 
+            $table->foreignId('municipio_id')->constrained('municipios'); 
+            $table->string('direccion_residencia'); 
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('criterios');
+        Schema::dropIfExists('directions');
     }
 };

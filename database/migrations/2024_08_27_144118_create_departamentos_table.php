@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nombre_departamento');
             $table->unsignedBigInteger('id_pais');
-            $table->foreign('id_pais')->references('id')->on('paises');
+            $table->foreign('id_pais')->references('id')->on('pais');
             $table->timestamps();
         });
     }

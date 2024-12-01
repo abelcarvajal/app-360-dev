@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class PosicionesCardinale extends Model
 {
     use HasFactory;
+    protected $fillable=['posicion_cardinal'];
 }
