@@ -19,7 +19,7 @@ use App\Http\Controllers\PaisController;
 use App\Http\Controllers\PosicionesCardinaleController;
 use App\Http\Controllers\ProgramaController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\SedeController;
+use App\Http\Controllers\CentroCostoController;
 use App\Http\Controllers\TipoDocumentoController;
 use App\Http\Controllers\TiposViaController;
 
@@ -55,16 +55,18 @@ Route::controller(CargoController::class)->group(function(){
 
 Route::controller(CategoriasCriterioController::class)->group(function(){
     Route::get('categorias/datos', 'index');
+    Route::get('categorias/dataById/{id}', 'show');
     Route::post('categorias/guardar', 'store');
-    Route::put('categorias/actualizar', 'update');
-    Route::delete('categorias/borrar', 'destroy');
+    Route::put('categorias/actualizar/{id}', [CategoriasCriterioController::class, 'update']);
+    Route::delete('categorias/borrar/{id}', 'destroy');
 });
 
 Route::controller(ColaboradorController::class)->group(function(){
     Route::get('colaborador/datos', 'index');
+    Route::get('colaborador/dataById/{id}', 'show');
     Route::post('colaborador/guardar', 'store');
-    Route::put('colaborador/actualizar', 'update');
-    Route::delete('colaborador/borrar', 'destroy');
+    Route::put('colaborador/actualizar/{id}', 'update');
+    Route::delete('colaborador/borrar/{id}', 'destroy');
 });
 
 Route::controller(CriterioController::class)->group(function(){
@@ -160,11 +162,11 @@ Route::controller(RoleController::class)->group(function(){
     Route::delete('rol/borrar', 'delete');
 });
 
-Route::controller(SedeController::class)->group(function(){
-    Route::get('sede/datos', 'getData');
-    Route::post('sede/guardar', 'save');
-    Route::put('sede/actualizar', 'update');
-    Route::delete('sede/borrar', 'delete');
+Route::controller(CentroCostoController::class)->group(function(){
+    Route::get('centro_costo/datos', 'getData');
+    Route::post('centro_costo/guardar', 'save');
+    Route::put('centro_costo/actualizar', 'update');
+    Route::delete('centro_costo/borrar', 'delete');
 });
 
 Route::controller(TipoDocumentoController::class)->group(function(){
