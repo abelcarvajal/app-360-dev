@@ -15,7 +15,10 @@ return new class extends Migration
             $table->id();
             $table->text('criterio');
             $table->unsignedBigInteger('id_categorias_criterios');
-            $table->foreign('id_categorias_criterios')->references('id')->on('categorias_criterios');
+            $table->foreign('id_categorias_criterios')
+                  ->references('id')
+                  ->on('categorias_criterios')
+                  ->onDelete('cascade');
             $table->timestamps();
         });
     }

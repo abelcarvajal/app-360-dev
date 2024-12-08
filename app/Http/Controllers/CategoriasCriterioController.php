@@ -7,6 +7,7 @@ use Illuminate\Validation\Rule;
 use App\Models\CategoriasCriterio;
 use App\Models\Criterio;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 
 
@@ -23,6 +24,24 @@ class CategoriasCriterioController extends Controller
             'message' => 'Categorías obtenidas exitosamente',
             'result' => $categorias
         ]);
+    }
+
+    public function show($id)
+    {
+        try {
+            $categoria = CategoriasCriterio::with('criterios')->findOrFail($id);
+            return response()->json([
+                'status' => '200',
+                'message' => 'Categoría obtenida exitosamente',
+                'result' => $categoria
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => '500',
+                'message' => 'Error al obtener la categoría',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /*Cambié el método save por store, ya que store me permite guardar además los criterios asociados*/
@@ -60,31 +79,12 @@ class CategoriasCriterioController extends Controller
             ], 500);
         }
     }
-    
-    public function show($id)
-    {
-        try {
-            $categoria = CategoriasCriterio::with('criterios')->findOrFail($id);
-            
-            return response()->json([
-                'status' => '200',
-                'message' => 'Categoría obtenida exitosamente',
-                'result' => $categoria
-            ]);
-            
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => '500',
-                'message' => 'Error al obtener la categoría',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
 
     public function update(Request $request, $id)
     {
+        Log::info('Iniciando actualización de categoría ID: ', $request->all());
         $request->validate([
-            'categoria' => ['required', 'string', 'max:255', Rule::unique('categoria_criterios')->ignore($id)],
+            'categoria' => ['required', 'string', 'max:255', Rule::unique('categorias_criterios')->ignore($id)],
             'descripcion' => 'required|string',
             'criterio1' => 'required|string',
             'criterio2' => 'required|string',
@@ -97,10 +97,20 @@ class CategoriasCriterioController extends Controller
 
         $categoria->update($request->only(['categoria', 'descripcion']));
 
-        $criteriosData = $request->only(['criterio1', 'criterio2', 'criterio3', 'criterio4', 'criterio5']);
         $categoria->criterios()->delete(); // Eliminar criterios existentes
-        foreach ($criteriosData as $criterioData) {
-            $categoria->criterios()->create(['criterio' => $criterioData]);
+        $criterios =[
+            $request->criterio1,
+            $request->criterio2,
+            $request->criterio3,
+            $request->criterio4,
+            $request->criterio5
+        ];
+
+        foreach ($criterios as $index => $criterio) {
+            $categoria->criterios()->create([
+                'criterio' => $criterio,
+                'orden' => $index + 1
+            ]);
         }
 
         return response()->json([
@@ -111,13 +121,41 @@ class CategoriasCriterioController extends Controller
 
     public function destroy($id)
     {
-        $categoria = CategoriasCriterio::findOrFail($id);
-        $categoria->criterios()->delete(); // Eliminar criterios relacionados
-        $categoria->delete();
-        
-        return response()->json([
-            'status' => '200',
-            'message' => 'Categoría y criterios eliminados correctamente'
-        ]);
+        try {
+            Log::info('Iniciando eliminación de categoría ID: ' . $id);
+            
+            $categoria = CategoriasCriterio::with('criterios')->findOrFail($id);
+            
+            // Verificar si hay criterios relacionados
+            $criteriosCount = $categoria->criterios->count();
+            Log::info('Criterios encontrados para eliminar: ' . $criteriosCount);
+            
+            DB::beginTransaction();
+            try {
+                // Eliminar primero los criterios
+                $categoria->criterios()->delete();
+                // Luego eliminar la categoría
+                $categoria->delete();
+                
+                DB::commit();
+                
+                return response()->json([
+                    'status' => '200',
+                    'message' => 'Categoría y ' . $criteriosCount . ' criterios eliminados correctamente'
+                ]);
+                
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('Error al eliminar categoría: ' . $e->getMessage());
+            return response()->json([
+                'status' => '500',
+                'message' => 'Error al eliminar la categoría y criterios',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

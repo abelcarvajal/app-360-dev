@@ -5,8 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Sede extends Model
+class CentroCosto extends Model
 {
     use HasFactory;
-    protected $fillable=['nombre_sede'];
+    protected $table='centro_costo';
+    protected $fillable=['nombre_centro_costo'];
 }

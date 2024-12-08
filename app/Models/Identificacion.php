@@ -21,6 +21,6 @@ class Identificacion extends Model
 
     public function tipo_documento()
     {
-        return $this->belongsTo(TipoDocumento::class);
+        return $this->belongsTo(TipoDocumento::class, 'tipo_documento_id');
     }
 }
