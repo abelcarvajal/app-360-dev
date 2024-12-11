@@ -9,19 +9,19 @@ use PhpParser\Node\Expr\Eval_;
 class EvaluacionTipoController extends Controller
 {
     //
-    public function getData(Request $request){
+    public function index(){
 
-        $tipo_ev=EvaluacionTipo::all();
+        $tipo=EvaluacionTipo::select('id','tipo_evaluacion')->get();
         
         return response()->json([
             'status' => '200',
-            'message' =>  'Data... ',
-            'result' => $tipo_ev
+            'message' =>  'Tipos de evaluación ob',
+            'result' => $tipo
         ]);
     }
     public function save(Request $request){
         
-        $tipo_ev=EvaluacionTipo::create([
+        $tipo=EvaluacionTipo::create([
             'tipo_evaluacion'=>$request->tipo
         ]);
 
@@ -33,8 +33,8 @@ class EvaluacionTipoController extends Controller
 
     public function update(Request $request){
         
-        $tipo_ev=EvaluacionTipo::findOrFail($request->id);
-        $tipo_ev->update([
+        $tipo=EvaluacionTipo::findOrFail($request->id);
+        $tipo->update([
             'tipo_evaluacion'=>$request->tipo
         ]);
 
@@ -46,8 +46,8 @@ class EvaluacionTipoController extends Controller
 
     public function delete(Request $request){
         
-        $tipo_ev=EvaluacionTipo::findOrFail($request->id);
-        $tipo_ev->delete();
+        $tipo=EvaluacionTipo::findOrFail($request->id);
+        $tipo->delete();
 
         return response()->json([
             'status' => '200',

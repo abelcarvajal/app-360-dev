@@ -17,3 +17,4 @@ class Criterio extends Model
         return $this->belongsTo(CategoriasCriterio::class, 'id_categorias_criterios');
     }
 }
+

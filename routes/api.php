@@ -106,10 +106,10 @@ Route::controller(EvaluacionController::class)->group(function(){
 });
 
 Route::controller(EvaluacionTipoController::class)->group(function(){
-    Route::post('tipoev/guardar', 'save');
-    Route::put('tipoev/actualizar', 'update');
-    Route::delete('tipoev/borrar', 'delete');
-    Route::get('tipoev/datos', 'getData');
+    Route::get('tipos/datos', 'index');
+    Route::post('tipos/guardar', 'save');
+    Route::put('tipos/actualizar', 'update');
+    Route::delete('tipos/borrar', 'delete');
 });
 
 Route::controller(IdentificacionController::class)->group(function(){

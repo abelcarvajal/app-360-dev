@@ -11,19 +11,20 @@ class DetalleEvaluacionController extends Controller
     //
     public function getData(Request $request){
 
-        $detallev=DetalleEvaluacion::all();
+        $detalle=DetalleEvaluacion::all();
         
         return response()->json([
             'status' => '200',
             'message' =>  'Data... ',
-            'result' => $detallev
+            'result' => $detalle
         ]);
     }
     public function save(Request $request){
 
-        $detallev=DetalleEvaluacion::create([
-            'valoracion'=>$request->val,
-            'id_criterios'=>$request->id_criterio
+        $detalle=DetalleEvaluacion::create([
+            'valoracion'=>$request->valoracion,
+            'id_criterios'=>$request->id_criterio,
+            'id_evaluacion'=>$request->id_evaluacion
         ]);
         
         return response()->json([
@@ -34,10 +35,11 @@ class DetalleEvaluacionController extends Controller
 
     public function update(Request $request){
 
-        $detallev=DetalleEvaluacion::FindOrFail($request->id);
-        $detallev->update([
-            'valoracion'=>$request->val,
-            'id_criterios'=>$request->id_criterio
+        $detalle=DetalleEvaluacion::FindOrFail($request->id);
+        $detalle->update([
+            'valoracion'=>$request->valoracion,
+            'id_criterios'=>$request->id_criterio,
+            'id_evaluacion'=>$request->id_evaluacion
         ]);
         
         return response()->json([
@@ -48,8 +50,8 @@ class DetalleEvaluacionController extends Controller
 
     public function delete(Request $request){
 
-        $detallev=DetalleEvaluacion::FindOrFail($request->id);
-        $detallev->delete();
+        $detalle=DetalleEvaluacion::FindOrFail($request->id);
+        $detalle->delete();
         
         return response()->json([
             'status' => '200',

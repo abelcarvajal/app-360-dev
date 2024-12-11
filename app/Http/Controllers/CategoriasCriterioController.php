@@ -8,6 +8,7 @@ use App\Models\CategoriasCriterio;
 use App\Models\Criterio;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 
 
@@ -81,8 +82,10 @@ class CategoriasCriterioController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        Log::info('Iniciando actualización de categoría ID: ', $request->all());
+{
+    try {
+        Log::info('Iniciando actualización de categoría ID: ' . $id, $request->all());
+        
         $request->validate([
             'categoria' => ['required', 'string', 'max:255', Rule::unique('categorias_criterios')->ignore($id)],
             'descripcion' => 'required|string',
@@ -93,12 +96,17 @@ class CategoriasCriterioController extends Controller
             'criterio5' => 'required|string'
         ]);
 
+        DB::beginTransaction();
+        
         $categoria = CategoriasCriterio::findOrFail($id);
-
+        
+        // Actualizar la categoría
         $categoria->update($request->only(['categoria', 'descripcion']));
 
-        $categoria->criterios()->delete(); // Eliminar criterios existentes
-        $criterios =[
+        // Actualizar criterios existentes en lugar de eliminarlos
+        // Removemos el orderBy('orden') ya que la columna no existe
+        $criterios = $categoria->criterios()->get();
+        $nuevosValores = [
             $request->criterio1,
             $request->criterio2,
             $request->criterio3,
@@ -107,17 +115,45 @@ class CategoriasCriterioController extends Controller
         ];
 
         foreach ($criterios as $index => $criterio) {
+            if (isset($nuevosValores[$index])) {
+                $criterio->update([
+                    'criterio' => $nuevosValores[$index]
+                ]);
+            }
+        }
+
+        // Si hay menos criterios existentes que nuevos, crear los faltantes
+        $criteriosExistentes = $criterios->count();
+        for ($i = $criteriosExistentes; $i < count($nuevosValores); $i++) {
             $categoria->criterios()->create([
-                'criterio' => $criterio,
-                'orden' => $index + 1
+                'criterio' => $nuevosValores[$i]
+                // Removemos el campo 'orden' ya que no existe en la tabla
             ]);
         }
+
+        DB::commit();
 
         return response()->json([
             'status' => '200',
             'message' => 'Categoría y criterios actualizados correctamente'
         ]);
+
+    } catch (ValidationException $e) {
+        DB::rollBack();
+        return response()->json([
+            'status' => '422',
+            'message' => 'Error de validación',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Error al actualizar categoría: ' . $e->getMessage());
+        return response()->json([
+            'status' => '500',
+            'message' => 'Error al actualizar la categoría: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     public function destroy($id)
     {

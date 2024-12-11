@@ -9,28 +9,37 @@ use PhpParser\Node\Expr\Eval_;
 class EvaluacionController extends Controller
 {
     //
-    public function getData(Request $request){
+    public function getData(){
 
-        $ev=Evaluacion::all();
-        
+        $ev=Evaluacion::with(['colaborador','evaluacion_tipos', 'detalle_evaluacion.criterio'])->get();
+        $ev->map(function($evaluacion){
+            return [
+                'id' => $evaluacion->id,
+                'created_at' => $evaluacion->created_at,
+                'colaborador' => $evaluacion->colaborador->nombres . ' ' . $evaluacion->colaborador->apellidos,
+                'tipo_evaluacion' => $evaluacion->evaluacion_tipos->tipo_evaluacion,
+                'detalle_evaluacion' => $evaluacion->detalle_evaluacion
+            ];
+        });
+
         return response()->json([
             'status' => '200',
-            'message' =>  'Data... ',
+            'message' =>  'Evaluaciones obtenidas con éxito',
             'result' => $ev
         ]);
     }
     public function save(Request $request){
 
         $ev=Evaluacion::create([
-            'fecha'=>$request->fecha,
             'id_colaboradores'=>$request->id_colab,
-            'id_login'=>$request->id_login,
-            'id_detalle_evaluacion'=>$request->id_det_ev
+            'id_evaluacion_tipos'=>$request->id_tipo_ev,
+            'created_at'=>$request->fecha
         ]);
         
         return response()->json([
             'status' => '200',
-            'message' =>  'Guardado con éxito'
+            'message' =>  'Guardado con éxito',
+            'result'=>$ev
         ]);
     }
 
@@ -38,10 +47,9 @@ class EvaluacionController extends Controller
 
         $ev=Evaluacion::FindOrFail($request->id);
         $ev->update([
-            'fecha'=>$request->fecha,
+            'created_at'=>$request->fecha,
             'id_colaboradores'=>$request->id_colab,
-            'id_login'=>$request->id_login,
-            'id_detalle_evaluacion'=>$request->id_det_ev
+            'id_evaluacion_tipos'=>$request->id_tipo_ev
         ]);
         
         return response()->json([
