@@ -2,26 +2,20 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\BarrioController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CargoController;
 use App\Http\Controllers\CategoriasCriterioController;
 use App\Http\Controllers\ColaboradorController;
-use App\Http\Controllers\CriterioController;
 use App\Http\Controllers\DepartamentoController;
 use App\Http\Controllers\DetalleEvaluacionController;
-use App\Http\Controllers\DirectionController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\EvaluacionTipoController;
-use App\Http\Controllers\IdentificacionController;
-use App\Http\Controllers\LoginController;
+use App\Http\Controllers\ItemEvaluacionController;
 use App\Http\Controllers\MunicipioController;
 use App\Http\Controllers\PaisController;
-use App\Http\Controllers\PosicionesCardinaleController;
 use App\Http\Controllers\ProgramaController;
-use App\Http\Controllers\RoleController;
 use App\Http\Controllers\CentroCostoController;
 use App\Http\Controllers\TipoDocumentoController;
-use App\Http\Controllers\TiposViaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,151 +28,64 @@ use App\Http\Controllers\TiposViaController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// Rutas públicas (solo auth)
+Route::post('auth/login', [AuthController::class, 'login']);
+
+//Rutas protegidas (requieren autenticación)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('auth/logout', [AuthController::class, 'logout']);
+    Route::get('auth/me', [AuthController::class, 'me']);
+    Route::post('auth/cambiar-password', [AuthController::class, 'cambiarPassword']);
+
+    // Catálogos (solo lectura para usuarios normales)
+    Route::get('pais/datos', [PaisController::class, 'getData']);
+    Route::get('departamento/datos/{id_pais}', [DepartamentoController::class, 'getDataByPais']);
+    Route::get('municipio/datos/{id_departamento}', [MunicipioController::class, 'getDataByDepartamento']);
+    Route::get('cargos/datos', [CargoController::class, 'getData']);
+    Route::get('programa/datos', [ProgramaController::class, 'getData']);
+    Route::get('centro_costo/datos', [CentroCostoController::class, 'getData']);
+    Route::get('tipodoc/datos', [TipoDocumentoController::class, 'getData']);
+    Route::get('categorias/datos', [CategoriasCriterioController::class, 'index']);
+    Route::get('items/datos', [ItemEvaluacionController::class, 'index']);
+    Route::get('tipos/datos', [EvaluacionTipoController::class, 'index']);
+
+    // Colaboradores — lectura para cualquier autenticado
+    Route::get('colaborador/datos', [ColaboradorController::class, 'index']);
+    Route::get('colaborador/dataById/{id}', [ColaboradorController::class, 'show']);
+
+    // Evaluaciones
+    Route::get('evaluacion/datos', [EvaluacionController::class, 'getData']);
+    Route::post('evaluacion/guardar', [EvaluacionController::class, 'save']);
+    Route::put('evaluacion/actualizar', [EvaluacionController::class, 'update']);
+    Route::delete('evaluacion/borrar', [EvaluacionController::class, 'delete']);
+
+    // Detalle evaluación
+    Route::get('detalle/datos', [DetalleEvaluacionController::class, 'getData']);
+    Route::post('detalle/guardar', [DetalleEvaluacionController::class, 'save']);
+    Route::put('detalle/actualizar', [DetalleEvaluacionController::class, 'update']);
+    Route::delete('detalle/borrar', [DetalleEvaluacionController::class, 'delete']);
+
+    // Gestión de criterios — solo psicólogo y admin
+    Route::middleware('rol:psicologo,admin')->group(function () {
+        Route::post('categorias/guardar', [CategoriasCriterioController::class, 'store']);
+        Route::put('categorias/actualizar/{id}', [CategoriasCriterioController::class, 'update']);
+        Route::delete('categorias/borrar/{id}', [CategoriasCriterioController::class, 'destroy']);
+
+        Route::post('items/guardar', [ItemEvaluacionController::class, 'store']);
+        Route::put('items/actualizar/{id}', [ItemEvaluacionController::class, 'update']);
+        Route::patch('items/estado/{id}', [ItemEvaluacionController::class, 'cambiarEstado']);
+    });
+
+    // Gestión de colaboradores y catálogos — solo admin
+    Route::middleware('rol:admin')->group(function () {
+        Route::post('colaborador/guardar', [ColaboradorController::class, 'store']);
+        Route::put('colaborador/actualizar/{id}', [ColaboradorController::class, 'update']);
+        Route::patch('colaborador/estado/{id}', [ColaboradorController::class, 'cambiarEstado']);
+
+        Route::post('cargos/guardar', [CargoController::class, 'save']);
+        Route::put('cargos/actualizar', [CargoController::class, 'update']);
+        Route::delete('cargos/borrar', [CargoController::class, 'delete']);
+    });
 });
 
 
-Route::controller(BarrioController::class)->group(function(){
-    Route::get('barrios/datos', 'getData');
-    Route::post('barrios/guardar', 'save');
-    Route::put('barrios/actualizar', 'update');
-    Route::delete('barrios/borrar', 'delete');
-});
-
-Route::controller(CargoController::class)->group(function(){
-    Route::get('cargos/datos', 'getData');
-    Route::post('cargos/guardar', 'save');
-    Route::put('cargos/actualizar', 'update');
-    Route::delete('cargos/borrar', 'delete');
-});
-
-Route::controller(CategoriasCriterioController::class)->group(function(){
-    Route::get('categorias/datos', 'index');
-    Route::get('categorias/dataById/{id}', 'show');
-    Route::post('categorias/guardar', 'store');
-    Route::put('categorias/actualizar/{id}', [CategoriasCriterioController::class, 'update']);
-    Route::delete('categorias/borrar/{id}', 'destroy');
-});
-
-Route::controller(ColaboradorController::class)->group(function(){
-    Route::get('colaborador/datos', 'index');
-    Route::get('colaborador/dataById/{id}', 'show');
-    Route::post('colaborador/guardar', 'store');
-    Route::put('colaborador/actualizar/{id}', 'update');
-    Route::delete('colaborador/borrar/{id}', 'destroy');
-});
-
-Route::controller(CriterioController::class)->group(function(){
-    Route::get('criterio/datos', 'getData');
-    Route::post('criterio/guardar', 'save');
-    Route::put('criterio/actualizar', 'update');
-    Route::delete('criterio/borrar', 'delete');
-});
-
-Route::controller(DepartamentoController::class)->group(function(){
-    Route::get('departamento/datos/{id_pais}', 'getDataByPais'); //Ruta agregada para obtener los departamentos por país
-    Route::get('departamento/datos', 'getData');
-    Route::post('departamento/guardar', 'save');
-    Route::put('departamento/actualizar', 'update');
-    Route::delete('departamento/borrar', 'delete');
-});
-
-Route::controller(DetalleEvaluacionController::class)->group(function(){
-    Route::get('detalle/datos', 'getData');
-    Route::post('detalle/guardar', 'save');
-    Route::put('detalle/actualizar', 'update');
-    Route::delete('detalle/borrar', 'delete');
-});
-
-Route::controller(DirectionController::class)->group(function(){
-    Route::get('direccion/datos', 'getData');
-    Route::post('direccion/guardar', 'save');
-    Route::put('direccion/actualizar', 'update');
-    Route::delete('direccion/borrar', 'delete');
-});
-
-Route::controller(EvaluacionController::class)->group(function(){
-    Route::get('evaluacion/datos', 'getData');
-    Route::post('evaluacion/guardar', 'save');
-    Route::put('evaluacion/actualizar', 'update');
-    Route::delete('evaluacion/borrar', 'delete');
-});
-
-Route::controller(EvaluacionTipoController::class)->group(function(){
-    Route::get('tipos/datos', 'index');
-    Route::post('tipos/guardar', 'save');
-    Route::put('tipos/actualizar', 'update');
-    Route::delete('tipos/borrar', 'delete');
-});
-
-Route::controller(IdentificacionController::class)->group(function(){
-    Route::get('identificacion/datos', 'getData');
-    Route::post('identificacion/guardar', 'save');
-    Route::put('identificacion/actualizar', 'update');
-    Route::delete('identificacion/borrar', 'delete');
-});
-
-Route::controller(LoginController::class)->group(function(){
-    Route::get('login/datos', 'getData');
-    Route::post('login/guardar', 'save');
-    Route::put('login/actualizar', 'update');
-    Route::delete('login/borrar', 'delete');
-});
-
-Route::controller(MunicipioController::class)->group(function(){
-    Route::get('municipio/datos/{id_departamento}', 'getDataByDepartamento'); //Ruta agregada para obtener los municipios por departamento
-    Route::get('municipio/datos', 'getData');
-    Route::post('municipio/guardar', 'save');
-    Route::put('municipio/actualizar', 'update');
-    Route::delete('municipio/borrar', 'delete');
-});
-
-Route::controller(PaisController::class)->group(function(){
-    Route::get('pais/datos', 'getData');
-    Route::post('pais/guardar', 'save');
-    Route::put('pais/actualizar', 'update');
-    Route::delete('pais/borrar', 'delete');
-});
-
-Route::controller(PosicionesCardinaleController::class)->group(function(){
-    Route::get('cardinales/datos', 'getData');
-    Route::post('cardinales/guardar', 'save');
-    Route::put('cardinales/actualizar', 'update');
-    Route::delete('cardinales/borrar', 'delete');
-});
-
-Route::controller(ProgramaController::class)->group(function(){
-    Route::get('programa/datos', 'getData');
-    Route::post('programa/guardar', 'save');
-    Route::put('programa/actualizar', 'update');
-    Route::delete('programa/borrar', 'delete');
-});
-
-Route::controller(RoleController::class)->group(function(){
-    Route::get('rol/datos', 'getData');
-    Route::post('rol/guardar', 'save');
-    Route::put('rol/actualizar', 'update');
-    Route::delete('rol/borrar', 'delete');
-});
-
-Route::controller(CentroCostoController::class)->group(function(){
-    Route::get('centro_costo/datos', 'getData');
-    Route::post('centro_costo/guardar', 'save');
-    Route::put('centro_costo/actualizar', 'update');
-    Route::delete('centro_costo/borrar', 'delete');
-});
-
-Route::controller(TipoDocumentoController::class)->group(function(){
-    Route::get('tipodoc/datos', 'getData');
-    Route::post('tipodoc/guardar', 'save');
-    Route::put('tipodoc/actualizar', 'update');
-    Route::delete('tipodoc/borrar', 'delete');
-});
-
-Route::controller(TiposViaController::class)->group(function(){
-    Route::get('tipovia/datos', 'getData');
-    Route::post('tipovia/guardar', 'save');
-    Route::put('tipovia/actualizar', 'update');
-    Route::delete('tipovia/borrar', 'delete');
-});
