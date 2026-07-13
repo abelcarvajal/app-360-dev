@@ -21,7 +21,13 @@ class DetalleEvaluacionController extends Controller
     }
     public function save(Request $request){
 
-        $detalle=DetalleEvaluacion::create([
+        $request->validate([
+            'valoracion' => 'required|integer|min:1|max:5',
+            'id_criterio' => 'required|exists:items_evaluacion,id',
+            'id_evaluacion' => 'required|exists:evaluacions,id'
+        ]);
+
+        $detalle = DetalleEvaluacion::create([
             'valoracion'=>$request->valoracion,
             'id_criterios'=>$request->id_criterio,
             'id_evaluacion'=>$request->id_evaluacion
@@ -29,7 +35,8 @@ class DetalleEvaluacionController extends Controller
         
         return response()->json([
             'status' => '200',
-            'message' =>  'Guardado con éxito'
+            'message' =>  'Guardado con éxito',
+            'result' => $detalle
         ]);
     }
 
