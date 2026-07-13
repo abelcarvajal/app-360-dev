@@ -9,8 +9,9 @@ class CategoriasCriterio extends Model
 {
     use HasFactory;
     protected $fillable = ['categoria', 'descripcion'];
-    public function criterios()
+    public function items()
     {
-        return $this->hasMany(Criterio::class, 'id_categorias_criterios');
+        return $this->hasMany(ItemEvaluacion::class, 'id_categorias_criterios')
+                    ->where('activo', true);
     }
 }
