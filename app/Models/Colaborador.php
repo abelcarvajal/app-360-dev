@@ -19,7 +19,14 @@ class Colaborador extends Model
         'email',
         'id_cargos',
         'id_programas',
-        'id_centro_costo'
+        'id_centro_costo',
+        'lider_id',
+        'barrio',
+        'activo',
+    ];
+
+    protected $casts = [
+        'activo' => 'boolean',
     ];
 
     // Relaciones
@@ -38,6 +45,11 @@ class Colaborador extends Model
         return $this->belongsTo(Municipio::class, 'ciudad_residencia_id');
     }
 
+    public function setBarrioAttribute($value): void
+    {
+        $this->attributes['barrio'] = $value ? strtoupper(trim($value)) : null;
+    }
+
     public function cargo()
     {
         return $this->belongsTo(Cargo::class, 'id_cargos');
@@ -51,5 +63,25 @@ class Colaborador extends Model
     public function centroCosto()
     {
         return $this->belongsTo(CentroCosto::class, 'id_centro_costo');
+    }
+
+    public function lider()
+    {
+        return $this->belongsTo(Colaborador::class, 'lider_id');
+    }
+
+    public function subordinados()
+    {
+        return $this->hasMany(Colaborador::class, 'lider_id');
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Rol::class, 'colaborador_roles');
+    }
+
+    public function tieneRol(string $slug): bool
+    {
+        return $this->roles->contains('slug', $slug);
     }
 }
