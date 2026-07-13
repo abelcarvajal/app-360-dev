@@ -12,6 +12,11 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    public function colaborador()
+    {
+        return $this->belongsTo(Colaborador::class, 'colaborador_id');
+    }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -21,6 +26,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'cedula',
+        'debe_cambiar_password',
+        'colaborador_id',
     ];
 
     /**
@@ -40,5 +48,6 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'debe_cambiar_password' => 'boolean',
     ];
 }
