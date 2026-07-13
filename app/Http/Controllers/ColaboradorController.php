@@ -19,8 +19,21 @@ class ColaboradorController extends Controller
 
     public function index(Request $request)
     {
-        $colaboradores = Colaborador::with('identificacion.tipo_documento', 'ciudadNacimiento', 'ciudadResidencia', 'cargo', 'programa', 'centroCosto')->get();
-        return response()->json($colaboradores);
+        $query = Colaborador::with(
+            'identificacion.tipo_documento',
+            'ciudadNacimiento',
+            'ciudadResidencia',
+            'cargo',
+            'programa',
+            'centroCosto'
+        );
+
+        // Opcionalmente incluir inactivos con ?todos=true
+        if (!$request->boolean('todos')) {
+            $query->where('activo', true);
+        }
+
+        return response()->json($query->get());
     }
 
     public function store(Request $request)
@@ -198,41 +211,18 @@ class ColaboradorController extends Controller
             ], 500);
         }
     }
-    public function destroy($id)
+    public function cambiarEstado(Request $request, $id)
     {
-        try {
-            DB::beginTransaction();
-            
-            $colaborador = Colaborador::with('identificacion')->findOrFail($id);
+        $request->validate([
+            'activo' => 'required|boolean',
+        ]);
 
-            if (!$colaborador) {
-                return response()->json([
-                    'message' => 'Colaborador no encontrado'
-                ], 404);
-            }
+        $colaborador = Colaborador::findOrFail($id);
+        $colaborador->update(['activo' => $request->activo]);
 
-            $identificacionId =$colaborador->identificacion_id;
-            
-            $colaborador->delete();
-
-            // Eliminar la identificación si existe
-            if ($identificacionId) {
-                // Eliminamos la identificación ya que es única para cada colaborador
-                Identificacion::where('id', $identificacionId)->delete();
-            }
-            
-            DB::commit();
-            
-            return response()->json([
-                'message' => 'Colaborador eliminado exitosamente'
-            ], 200);
-            
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'message' => 'Error al eliminar el colaborador',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'message' => $request->activo ? 'Colaborador activado' : 'Colaborador desactivado',
+            'data'    => $colaborador
+        ]);
     }
 }
