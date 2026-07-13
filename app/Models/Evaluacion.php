@@ -10,8 +10,8 @@ use App\Models\EvaluacionTipo;
 class Evaluacion extends Model
 {
     use HasFactory;
-    protected $fillable=['id_colaboradores','id_evaluacion_tipos','created_at'];
-    
+    protected $fillable=['id_colaboradores','id_evaluacion_tipos','ciclo_id','created_at'];
+
     public function colaborador(){
         return $this->belongsTo(Colaborador::class, 'id_colaboradores');
     }
@@ -20,6 +20,9 @@ class Evaluacion extends Model
     }
     public function detalle_evaluacion(){
         return $this->hasMany(DetalleEvaluacion::class,'id_evaluacion');
+    }
+    public function ciclo(){
+        return $this->belongsTo(CicloEvaluacion::class, 'ciclo_id');
     }
 }
     
