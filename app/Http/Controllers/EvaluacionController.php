@@ -11,7 +11,7 @@ class EvaluacionController extends Controller
     //
     public function getData(){
 
-        $ev=Evaluacion::with(['colaborador','evaluacion_tipos', 'detalle_evaluacion.criterio'])->get();
+        $ev=Evaluacion::with(['colaborador','evaluacion_tipos', 'detalle_evaluacion.item'])->get();
         $ev->map(function($evaluacion){
             return [
                 'id' => $evaluacion->id,
