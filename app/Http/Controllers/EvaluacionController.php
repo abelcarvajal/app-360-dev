@@ -4,23 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\Evaluacion;
 use Illuminate\Http\Request;
-use PhpParser\Node\Expr\Eval_;
 
 class EvaluacionController extends Controller
 {
-    //
-    public function getData(){
+    public function getData(Request $request){
 
-        $ev=Evaluacion::with(['colaborador','evaluacion_tipos', 'detalle_evaluacion.item'])->get();
-        $ev->map(function($evaluacion){
-            return [
-                'id' => $evaluacion->id,
-                'created_at' => $evaluacion->created_at,
-                'colaborador' => $evaluacion->colaborador->nombres . ' ' . $evaluacion->colaborador->apellidos,
-                'tipo_evaluacion' => $evaluacion->evaluacion_tipos->tipo_evaluacion,
-                'detalle_evaluacion' => $evaluacion->detalle_evaluacion
-            ];
-        });
+        $colaborador = $request->user()->colaborador;
+
+        $query = Evaluacion::with(['colaborador', 'evaluacion_tipos', 'detalle_evaluacion.item']);
+
+        $alcance = $colaborador->alcanceEvaluacionIds();
+        if ($alcance !== null) {
+            $query->whereIn('id_colaboradores', $alcance);
+        }
+
+        $ev = $query->get();
 
         return response()->json([
             'status' => '200',
@@ -30,12 +28,23 @@ class EvaluacionController extends Controller
     }
     public function save(Request $request){
 
+        $request->validate([
+            'id_colab' => 'required|integer|exists:colaboradors,id',
+            'id_tipo_ev' => 'required|integer|exists:evaluacion_tipos,id',
+            'fecha' => 'nullable|date',
+        ]);
+
+        $colaborador = $request->user()->colaborador;
+        if (!$colaborador->puedeAccederAColaborador((int) $request->id_colab)) {
+            abort(403, 'No tienes permisos para esta acción');
+        }
+
         $ev=Evaluacion::create([
             'id_colaboradores'=>$request->id_colab,
             'id_evaluacion_tipos'=>$request->id_tipo_ev,
             'created_at'=>$request->fecha
         ]);
-        
+
         return response()->json([
             'status' => '200',
             'message' =>  'Guardado con éxito',
@@ -45,13 +54,27 @@ class EvaluacionController extends Controller
 
     public function update(Request $request){
 
+        $request->validate([
+            'id' => 'required|integer|exists:evaluacions,id',
+            'id_colab' => 'required|integer|exists:colaboradors,id',
+            'id_tipo_ev' => 'required|integer|exists:evaluacion_tipos,id',
+            'fecha' => 'nullable|date',
+        ]);
+
+        $colaborador = $request->user()->colaborador;
         $ev=Evaluacion::FindOrFail($request->id);
+
+        if (!$colaborador->puedeAccederAColaborador((int) $ev->id_colaboradores)
+            || !$colaborador->puedeAccederAColaborador((int) $request->id_colab)) {
+            abort(403, 'No tienes permisos para esta acción');
+        }
+
         $ev->update([
             'created_at'=>$request->fecha,
             'id_colaboradores'=>$request->id_colab,
             'id_evaluacion_tipos'=>$request->id_tipo_ev
         ]);
-        
+
         return response()->json([
             'status' => '200',
             'message' =>  'Actualizado con éxito'
@@ -60,9 +83,19 @@ class EvaluacionController extends Controller
 
     public function delete(Request $request){
 
+        $request->validate([
+            'id' => 'required|integer|exists:evaluacions,id',
+        ]);
+
+        $colaborador = $request->user()->colaborador;
         $ev=Evaluacion::FindOrFail($request->id);
+
+        if (!$colaborador->puedeAccederAColaborador((int) $ev->id_colaboradores)) {
+            abort(403, 'No tienes permisos para esta acción');
+        }
+
         $ev->delete();
-        
+
         return response()->json([
             'status' => '200',
             'message' =>  'Borrado con éxito'

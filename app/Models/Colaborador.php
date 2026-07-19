@@ -84,4 +84,30 @@ class Colaborador extends Model
     {
         return $this->roles->contains('slug', $slug);
     }
+
+    /**
+     * IDs de colaboradores cuyas evaluaciones puede ver/gestionar este colaborador.
+     * null = sin restricción (gerente/admin).
+     */
+    public function alcanceEvaluacionIds(): ?array
+    {
+        if ($this->tieneRol('gerente') || $this->tieneRol('admin')) {
+            return null;
+        }
+
+        $ids = [$this->id];
+
+        if ($this->tieneRol('lider')) {
+            $ids = array_merge($ids, $this->subordinados()->pluck('id')->all());
+        }
+
+        return $ids;
+    }
+
+    public function puedeAccederAColaborador(int $colaboradorId): bool
+    {
+        $alcance = $this->alcanceEvaluacionIds();
+
+        return $alcance === null || in_array($colaboradorId, $alcance, true);
+    }
 }
