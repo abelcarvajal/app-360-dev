@@ -40,6 +40,10 @@ class DetalleEvaluacionController extends Controller
         $colaborador = $request->user()->colaborador;
         $evaluacion = Evaluacion::findOrFail($request->id_evaluacion);
 
+        if (!$evaluacion->colaborador->puedeSerEvaluado()) {
+            abort(403, 'Este módulo no está habilitado para el usuario actual');
+        }
+
         if (!$colaborador->puedeAccederAColaborador((int) $evaluacion->id_colaboradores)) {
             abort(403, 'No tienes permisos para esta acción');
         }
@@ -70,6 +74,10 @@ class DetalleEvaluacionController extends Controller
         $detalle=DetalleEvaluacion::FindOrFail($request->id);
         $evaluacionActual = $detalle->evaluacion;
         $evaluacionNueva = Evaluacion::findOrFail($request->id_evaluacion);
+
+        if (!$evaluacionNueva->colaborador->puedeSerEvaluado()) {
+            abort(403, 'Este módulo no está habilitado para el usuario actual');
+        }
 
         if (!$colaborador->puedeAccederAColaborador((int) $evaluacionActual->id_colaboradores)
             || !$colaborador->puedeAccederAColaborador((int) $evaluacionNueva->id_colaboradores)) {

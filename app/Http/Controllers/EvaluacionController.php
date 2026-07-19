@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Colaborador;
 use App\Models\Evaluacion;
 use Illuminate\Http\Request;
 
@@ -35,6 +36,12 @@ class EvaluacionController extends Controller
         ]);
 
         $colaborador = $request->user()->colaborador;
+        $colaboradorEvaluado = Colaborador::findOrFail($request->id_colab);
+
+        if (!$colaboradorEvaluado->puedeSerEvaluado()) {
+            abort(403, 'Este módulo no está habilitado para el usuario actual');
+        }
+
         if (!$colaborador->puedeAccederAColaborador((int) $request->id_colab)) {
             abort(403, 'No tienes permisos para esta acción');
         }
@@ -63,6 +70,11 @@ class EvaluacionController extends Controller
 
         $colaborador = $request->user()->colaborador;
         $ev=Evaluacion::FindOrFail($request->id);
+        $colaboradorEvaluado = Colaborador::findOrFail($request->id_colab);
+
+        if (!$colaboradorEvaluado->puedeSerEvaluado()) {
+            abort(403, 'Este módulo no está habilitado para el usuario actual');
+        }
 
         if (!$colaborador->puedeAccederAColaborador((int) $ev->id_colaboradores)
             || !$colaborador->puedeAccederAColaborador((int) $request->id_colab)) {

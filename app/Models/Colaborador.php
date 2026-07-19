@@ -110,4 +110,12 @@ class Colaborador extends Model
 
         return $alcance === null || in_array($colaboradorId, $alcance, true);
     }
+
+    /**
+     * El gerente no es evaluado por nadie, ni siquiera por sí mismo (FASE 6.1 de REFACTOR.md).
+     */
+    public function puedeSerEvaluado(): bool
+    {
+        return !$this->tieneRol('gerente');
+    }
 }
